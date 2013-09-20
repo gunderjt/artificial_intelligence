@@ -19,6 +19,20 @@ by Pacman agents (in searchAgents.py).
 """
 
 import util
+from sets import Set
+class Node:
+    def __init__(self, coordinates, direction, cost, parentNode):
+        self.coordinates = coordinates
+        self.direction = direction
+        self.cost = cost
+        self.parentNode = parentNode
+    def getPath(self, array):
+        if self.parentNode == None:
+            return array
+        else:
+            array.insert(0, self.direction)
+            return self.parentNode.getPath(array)
+    
 
 class SearchProblem:
     """
@@ -84,35 +98,72 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
     """
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-   # print "Start's successors:", problem.getSuccessors(problem.getStartState())
-#    array = problem.getSuccessors(problem.getStartState())
- #   print array[0]
-  #  print array[0][1]
-    fringe = new.Stack
-    fringe.push(problem.getStartState()
 
-    while 1:
+    fringe = util.Stack()
+    closed = Set()
+    node = Node(problem.getStartState(), None, None, None)
+    fringe.push(node)
+    i = 0
+    while i < 500:
         if fringe.isEmpty():
-                return []
+            return []
         node = fringe.pop()
-        
-        fringe.push(problem.getSuccessors(currentPos)) 
-    '''
-    "*** YOUR CODE HERE ***"
+        if problem.isGoalState(node.coordinates):
+            array = []
+            return node.getPath(array)
+        if node.coordinates not in closed:
+            closed.add(node.coordinates)
+            children = problem.getSuccessors(node.coordinates)
+            for child in children:
+                fringe.push(Node(child[0], child[1], child[2], node))
+        i+=1
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    "*** YOUR CODE HERE ***"
+    fringe = util.Queue()
+    closed = Set()
+    node = Node(problem.getStartState(), None, None, None)
+    fringe.push(node)
+    
+    while 1:
+        if fringe.isEmpty():
+            return []
+        node = fringe.pop()
+        if problem.isGoalState(node.coordinates):
+            array = []
+            return node.getPath(array)
+        if node.coordinates not in closed:
+            closed.add(node.coordinates)
+            children = problem.getSuccessors(node.coordinates)
+            for child in children:
+                fringe.push(Node(child[0], child[1], child[2], node))
+    
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
+    fringe = util.PriorityQueue()
+    closed = Set()
+    node = Node(problem.getStartState(), None, None, None)
+    fringe.push(node, 9999)
+    
+    while 1:
+        if fringe.isEmpty():
+            return []
+        node = fringe.pop()
+        if problem.isGoalState(node.coordinates):
+            array = []
+            return node.getPath(array)
+        if node.coordinates not in closed:
+            closed.add(node.coordinates)
+            children = problem.getSuccessors(node.coordinates)
+            for child in children:
+                fringe.push(Node(child[0], child[1], child[2], node), child[2])
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
