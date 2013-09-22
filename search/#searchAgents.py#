@@ -285,7 +285,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.visited = [0,0,0,0] #1,1 1,top right,1 right,top
+        self.visited = [(1,1), (1,top), (right, 1), (right, top)] #1,1 1,top right,1 right,top
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
 
@@ -298,9 +298,10 @@ class CornersProblem(search.SearchProblem):
         '''
         I think here we check to see if all corners have been visited
         '''
-        if self.corners.count(state):
-        #    self.corners.remove(state)
-            return True
+        if self.visited.count(state):
+           self.visited.remove(state)
+           if not self.visited:
+               return True
         return False
     
 

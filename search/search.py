@@ -126,7 +126,7 @@ def breadthFirstSearch(problem):
     """
     fringe = util.Queue()
     closed = Set()
-    node = Node(problem.getStartState(), None, None, None)
+    node = Node(problem.getStartState(), None, 0, None)
     fringe.push(node)
     
     while 1:
