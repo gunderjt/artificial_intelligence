@@ -21,8 +21,8 @@ by Pacman agents (in searchAgents.py).
 import util
 from sets import Set
 class Node:
-    def __init__(self, coordinates, direction, cost, parentNode):
-        self.coordinates = coordinates
+    def __init__(self, state, direction, cost, parentNode):
+        self.state = state
         self.direction = direction
         self.cost = cost
         self.parentNode = parentNode
@@ -32,6 +32,8 @@ class Node:
         else:
             array.insert(0, self.direction)
             return self.parentNode.getPath(array)
+    
+
     
 
 class SearchProblem:
@@ -98,7 +100,7 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
     """    
-
+    
     fringe = util.Stack()
     closed = Set()
     node = Node(problem.getStartState(), None, None, None)
@@ -108,12 +110,12 @@ def depthFirstSearch(problem):
         if fringe.isEmpty():
             return []
         node = fringe.pop()
-        if problem.isGoalState(node.coordinates):
+        if problem.isGoalState(node.state):
             array = []
             return node.getPath(array)
-        if node.coordinates not in closed:
-            closed.add(node.coordinates)
-            children = problem.getSuccessors(node.coordinates)
+        if node.state not in closed:
+            closed.add(node.state)
+            children = problem.getSuccessors(node.state)
             for child in children:
                 fringe.push(Node(child[0], child[1], child[2], node))
 
@@ -131,14 +133,15 @@ def breadthFirstSearch(problem):
     
     while 1:
         if fringe.isEmpty():
-            return []
+            return None
         node = fringe.pop()
-        if problem.isGoalState(node.coordinates):
+        if problem.isGoalState(node.state):
             array = []
             return node.getPath(array)
-        if node.coordinates not in closed:
-            closed.add(node.coordinates)
-            children = problem.getSuccessors(node.coordinates)
+#        print "Debug:    ", node.cost
+        if node.state not in closed:
+            closed.add(node.state)
+            children = problem.getSuccessors(node.state)
             for child in children:
                 fringe.push(Node(child[0], child[1], child[2], node))
     
@@ -158,12 +161,12 @@ def uniformCostSearch(problem):
         if fringe.isEmpty():
             return []
         node = fringe.pop()
-        if problem.isGoalState(node.coordinates):
+        if problem.isGoalState(node.state):
             array = []
             return node.getPath(array)
-        if node.coordinates not in closed:
-            closed.add(node.coordinates)
-            children = problem.getSuccessors(node.coordinates)
+        if node.state not in closed:
+            closed.add(node.state)
+            children = problem.getSuccessors(node.state)
             for child in children:
                 fringe.push(Node(child[0], child[1], node.cost + child[2], node), node.cost + child[2])
 
@@ -190,11 +193,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if fringe.isEmpty():
             return []
         node = fringe.pop()
-        if problem.isGoalState(node.coordinates):
+        if problem.isGoalState(node.state):
             return node.getPath(array = [])
-        if node.coordinates not in closed:
-            closed.add(node.coordinates)
-            children = problem.getSuccessors(node.coordinates)
+        if node.state not in closed:
+            closed.add(node.state)
+            children = problem.getSuccessors(node.state)
             for child in children:
                 fringe.push(Node(child[0], child[1], node.cost + child[2], node), node.cost + child[2] + heuristic(child[0], problem))
     util.raiseNotDefined()

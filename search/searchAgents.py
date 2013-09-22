@@ -285,11 +285,11 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.visited = [0,0,0,0] #1,1 1,top right,1 right,top
+        self.visited = (0,0,0,0) #1,1 1,top right,1 right,top
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
 
-        return self.startingPosition
+        return (self.startingPosition, self.visited)
 
 
     def isGoalState(self, state):
@@ -298,10 +298,10 @@ class CornersProblem(search.SearchProblem):
         '''
         I think here we check to see if all corners have been visited
         '''
-        if self.corners.count(state):
-        #    self.corners.remove(state)
-            return True
-        return False
+#        print "Debug: state ", state
+        if 0 in state[1]:
+            return False
+        return True
     
 
     def getSuccessors(self, state):
@@ -324,11 +324,13 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-            x,y = state
+            x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty)
+                nextLoc = (nextx, nexty)
+                nextVis = self.newVisited(nextLoc, state[1])
+                nextState = (nextLoc, nextVis)
                 #cost = self.costFn(nextState)
                 cost = 1
                 successors.append( ( nextState, action, cost) )
@@ -348,7 +350,24 @@ class CornersProblem(search.SearchProblem):
             dx, dy = Actions.directionToVector(action)
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]: return 999999
+#        print "Debug: get cost of actions", len(actions)
         return len(actions)
+
+    def newVisited(self, loc, visited):
+        if loc in self.corners:
+            # Tuples are immutable so I will have to create a new tuple
+            index = self.corners.index(loc)
+            newStateArr = []
+            for ind, val in enumerate(visited):
+                if ind == index:
+                    newStateArr.append(1)
+                else:
+                    newStateArr.append(visited[ind])
+            newVisited = tuple(newStateArr)
+                #state[1][self.corners.index(state[0])] = 1
+        else:
+            newVisited = visited
+        return newVisited
 
 
 def cornersHeuristic(state, problem):
@@ -367,6 +386,38 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
+    #get the location of the corners not yet visited
+    #find the manhattan distance between current location and all corners
+    #return the smallest distance
+    #calculate the number of walls between current position and corner
+    def manhattan_distance(position, goal):
+        xy1 = position
+        xy2 = goal
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+    def euclidian_distance(position, goal):
+        xy1 = position
+        xy2 = goal
+        return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+
+    def unvisitedCor(corners, visited):
+        remainingCor = []
+        for ind, val in enumerate(visited):
+            if val == 0:
+                remainingCor.append(corners[ind])
+        return remainingCor
+    
+    remainCor = unvisitedCor(corners, state[1])
+
+    smallestDist = 9999999
+    for corner in remainCor:
+        #dist = manhattan_distance(state[0], corner) + euclidian_distance(state[0], corner)
+        dist = euclidian_distance(state[0], corner)
+        if dist < smallestDist:
+            smallestDist = dist
+    print smallestDist
+    return smallestDist
+    
     "*** YOUR CODE HERE ***"
     return 0 # Default to trivial solution
 
