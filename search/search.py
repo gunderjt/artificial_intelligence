@@ -97,14 +97,14 @@ def depthFirstSearch(problem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-    """
+    """    
 
     fringe = util.Stack()
     closed = Set()
     node = Node(problem.getStartState(), None, None, None)
     fringe.push(node)
     i = 0
-    while i < 500:
+    while 1:
         if fringe.isEmpty():
             return []
         node = fringe.pop()
@@ -116,7 +116,8 @@ def depthFirstSearch(problem):
             children = problem.getSuccessors(node.coordinates)
             for child in children:
                 fringe.push(Node(child[0], child[1], child[2], node))
-        i+=1
+
+
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
@@ -148,8 +149,8 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
     fringe = util.PriorityQueue()
     closed = Set()
-    node = Node(problem.getStartState(), None, None, None)
-    fringe.push(node, 9999)
+    node = Node(problem.getStartState(), None, 0, None)
+    fringe.push(node, None)
     
     while 1:
         if fringe.isEmpty():
@@ -162,7 +163,7 @@ def uniformCostSearch(problem):
             closed.add(node.coordinates)
             children = problem.getSuccessors(node.coordinates)
             for child in children:
-                fringe.push(Node(child[0], child[1], child[2], node), child[2])
+                fringe.push(Node(child[0], child[1], node.cost + child[2], node), node.cost + child[2])
 
     util.raiseNotDefined()
 
@@ -176,6 +177,23 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
     "*** YOUR CODE HERE ***"
+    fringe = util.PriorityQueue()
+    closed = Set()
+    node = Node(problem.getStartState(), None, 0, None)
+    fringe.push(node, None)
+    
+    while 1:
+        if fringe.isEmpty():
+            return []
+        node = fringe.pop()
+        if problem.isGoalState(node.coordinates):
+            return node.getPath(array = [])
+        if node.coordinates not in closed:
+            closed.add(node.coordinates)
+            children = problem.getSuccessors(node.coordinates)
+            for child in children:
+                fringe.push(Node(child[0], child[1], node.cost + child[2], node), node.cost + child[2] + heuristic(child[0], problem))
+
     util.raiseNotDefined()
 
 
