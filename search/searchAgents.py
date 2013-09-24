@@ -411,8 +411,8 @@ def cornersHeuristic(state, problem):
 
     dist = 0
     for corner in remainCor:
-#        dist += manhattan_distance(state[0], corner)
-        dist += euclidian_distance(state[0], corner)
+        dist += manhattan_distance(state[0], corner)
+#        dist += euclidian_distance(state[0], corner)
     if len(remainCor) != 0:
         dist = dist / float(len(remainCor))
 #    dist = dist / 2
