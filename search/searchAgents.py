@@ -511,8 +511,38 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
+    foodList = foodGrid.asList()
+
+    def manhattan_distance(position, goal):
+        xy1 = position
+        xy2 = goal
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+    
+    def euclidian_distance(position, goal):
+        xy1 = position
+        xy2 = goal
+        return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+    '''
+    def unvisitedFood(corners, visited):
+        remainingCor = []
+        for ind, val in enumerate(visited):
+            if val == 0:
+                remainingCor.append(corners[ind])
+        return remainingCor
+            
+    remainCor = unvisitedCor(corners, state[1])
+    '''
+    dist = 0
+    for food in foodList:
+#        dist += manhattan_distance(state[0], corner)
+        dist += euclidian_distance(state[0], food)
+    if len(foodList) != 0:
+        dist = dist / float(len(foodList))
+#    dist = dist / 2
+#    print "DEBUG: ", dist
+    return dist
     "*** YOUR CODE HERE ***"
-    return 0
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
