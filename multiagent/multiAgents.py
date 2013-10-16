@@ -69,28 +69,30 @@ class ReflexAgent(Agent):
         """
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood().asList()
+        ghostWeight = 1
+        foodWeight = 1
+        scoreWeight = 1
         # weight (4) * distance to nearest food pellet - 
         # weight(10) * distance to nearest ghost.
-        closestPellet = 9999999
-        totDist = 999999999
+        newPos = successorGameState.getPacmanPosition()
+        newFood = successorGameState.getFood().asList()
+        pelletDist = 999999999
+        ghostDist = 999999999
         for foodPellet in newFood:
-            #look at manhattan distance in 
-#            dist = self.distance(startPosition, foodPellet)
             dist = util.manhattanDistance(newPos, foodPellet)
-            if dist < totDist:
-#                print dist
-#                print totDist
-                closestPellet = foodPellet
-                totDist = dist
+            if dist < pelletDist:
+                pelletDist = dist
+        newGhost = successorGameState.getGhostPositions()
+        for ghost in newGhost:
+            dist = util.manhattanDistance(newPos, ghost)
+            if dist < ghostDist:
+                ghostDist = dist
+        score = successorGameState.getScore()
+        print (foodWeight*(1/pelletDist)) + (ghostWeight * ghostDist) + (scoreWeight*score)
+        return (foodWeight*(1/pelletDist)) + (ghostWeight * ghostDist) + (scoreWeight*score)
+#        newGhostStates = successorGameState.getGhostStates()
+#        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        print closestPellet
-        newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
     """
