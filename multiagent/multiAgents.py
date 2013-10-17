@@ -132,6 +132,40 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
+    def max_value(self, state, agent, maxAgents, depth, maxDepth):
+        depth = depth -1
+        v = -9999999999999
+        legalAction = state.getLegalActions(agent)
+        bestAction = ""
+        for action in legalAction:
+            actionV = self.min_value(state.generateSuccessor(agent, action), agent+1, maxAgents, depth, maxDepth)
+            if actionV[0] > v:
+                v = actionV[0]
+                bestAction = action
+        return [v, bestAction]
+
+    def min_value(self, state, agent, maxAgents, depth, maxDepth):
+        if ((agent == (maxAgents-1)) and (depth == 0)):
+            return [self.evaluationFunction, "west"]
+        depth = depth - 1
+        legalAction = state.getLegalActions(agent)
+        bestAction = ""
+        if (agent < (maxAgents-1)):
+            v = -999999999999
+            for action in legalAction:
+                actionV = self.min_value(state.generateSuccessor(agent, action), agent+1, maxAgents, depth, maxDepth)
+                if actionV[0] > v:
+                    v = actionV[0]
+                    bestAction = action
+            return [v, bestAction]
+        else:
+            v = 99999999999
+            for action in legalAction:
+                actionV = self.max_value(state.generateSuccessor(agent, action), 0, maxAgents, depth, maxDepth)
+                if actionV[0] < v:
+                    v = actionV[0]
+                    bestAction = action
+            return [v, bestAction]
 
     def getAction(self, gameState):
         """
@@ -150,31 +184,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        return max_value(gameState, 0, gameState.getNumAgents(), self.depth)
+        return self.max_value(gameState, 0, gameState.getNumAgents(), self.depth, self.depth)[1]
         
         util.raiseNotDefined()
     
-    def max_value(self, state, agent, maxAgents, depth):
-        depth = depth -1
-        v = -9999999999999
-        legalAction = state.getLegalActions(agent)
-        for action in legalAction:
-            v = max(v, min_value(state.generateSuccessor(agent, action), agent+1, maxAgents, depth))
-        return v
 
-    def min_value(self, state, agent, maxAgents, depth):
-        if ((agent == (maxAgents-1)) && (depth == 0)):
-            return self.evaluationFunction
-        legalAction = state.getLegalActions(agent)
-        if (agent < (maxAgents-1)):
-            v = 999999999999
-            for action in legalAction:
-                v = min(v, min_value(state.generateSuccessor(agent, action), agent+1, maxAgents, depth))
-        else:
-            v = -99999999999
-            for action in legalAction:
-                v = max(v, max_value(state.generateSuccessor(agent, action), 0, maxAgents, depth))
-        return v
 
 
 
