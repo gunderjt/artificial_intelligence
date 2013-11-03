@@ -320,34 +320,56 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    legalActions = currentGameState.getLegalActions(0)
-    for action in legalActions:
-        successorGameState = currentGameState.generatePacmanSuccessor(action)
-        ghostWeight, foodWeight, scoreWeight = 1.0, 4.0, 1.0
-        # weight (4) * distance to nearest food pellet - 
-        # weight(10) * distance to nearest ghost.
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood().asList()
-        pelletDist = 999999999.0
-        ghostDist = 999999999.0
-        for foodPellet in newFood:
-            dist = util.manhattanDistance(newPos, foodPellet)
-            if dist < pelletDist:
-                pelletDist = dist
-        newGhost = successorGameState.getGhostPositions()
-        for ghost in newGhost:
-            dist = util.manhattanDistance(newPos, ghost)
-            if dist < ghostDist:
-                ghostDist = dist
-                if ((dist == 1) or (dist == 0)):
-                    return -999999999999
-#            if ghostDist > 8:
-#                ghostDist = 0
-                score = successorGameState.getScore()
-#       print (foodWeight*(1/float(pelletDist))) + (scoreWeight*score)
-        score = (foodWeight*(1/float(pelletDist))) + (scoreWeight*score)
+    if currentGameState.isLose():
+        return -99999999999999999
+    ghostWeight, foodWeight, scoreWeight, capsuleWeight = 0.001, 4.0, 200000.0, 0.0
+    # weight (4) * distance to nearest food pellet - 
+    # weight(10) * distance to nearest ghost.
+    foodScore, ghostScore, scoreScore, capsuleScore = 0.0, 0.0, 0.0, 0.0
+    newPos = currentGameState.getPacmanPosition()
 
-    util.raiseNotDefined()
+
+
+    #get food score, how much does pacman want to eat go into the weight
+    newFood = currentGameState.getFood().asList()
+    pelletDist = 999999999.0
+    pelletTotal = 0.0
+    for foodPellet in newFood:
+        dist = util.manhattanDistance(newPos, foodPellet)
+        pelletTotal += dist
+        if dist < pelletDist:
+            pelletDist = dist
+    foodScore = (foodWeight*(1/float(pelletDist))) + 1/(pelletTotal+1)
+
+    #get ghost score, how afraid/attracted to the ghost is pacman
+    ghostDist = 999999999.0
+    newGhost = currentGameState.getGhostPositions()
+    ghostState = currentGameState.getGhostStates()
+    scareTime = 0
+    for ghost in ghostState:
+        scareTime += ghost.scaredTimer
+    for ghost in newGhost:
+        dist = util.manhattanDistance(newPos, ghost)
+        if dist < ghostDist:
+            ghostDist = dist
+            if (dist < 2) and (scareTime == 0):
+                return -999999999999
+    ghostScore = ghostDist*ghostWeight*-1
+    if scareTime > 0:
+        ghostScore *= -1
+    #get capsule score, if a capsule and a ghost are nearby, eat capsule kill ghost
+    newCapsule = currentGameState.getCapsules()
+    capsuleDist = 999999999999.0
+    for capsule in newCapsule:
+        dist = util.manhattanDistance(newPos, capsule)
+        if dist < capsuleDist:
+            capsuleDist = dist
+            if capsuleDist < 3 and ghostDist < 6:
+                capsuleWeight = 200
+    capsuleScore = capsuleWeight*(1/float(capsuleDist))
+    score = foodScore + (scoreWeight*currentGameState.getScore()) + ghostScore + capsuleScore 
+    return score
+
 
 # Abbreviation
 better = betterEvaluationFunction
