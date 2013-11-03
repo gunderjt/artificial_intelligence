@@ -47,11 +47,28 @@ class ValueIterationAgent(ValueEstimationAgent):
         # Write value iteration code here
         
         states = self.mdp.getStates()
+        #need temporary storage of state values, then after they are all incremented, update values[state]
+        incValues = util.Counter()
         for i in range(self.iterations):
             for state in states:
-                self.values[state] = self.getPolicy(state)
-        
+                actions = self.mdp.getPossibleActions(state)
+                alpha = -9999999999999999
+                for action in actions:
+                    qValue = self.getQValue(state, action)
+                    alpha = max(alpha, qValue)
+                if alpha != -9999999999999999:
+                    incValues[state] = alpha
+               # print "temp action", action
+               # print "temp value" incValues[state]
+            #update self.values[state]
+            for state in states:
+                self.values[state] = incValues[state]
+                #print "state", state
 
+    def initCounter(self, counter, states):
+        for state in states:
+            counter[state] = -99999999999
+        return counter
     def getValue(self, state):
         """
           Return the value of the state (computed in __init__).
@@ -65,14 +82,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        sumation = util.Counter()
+        sumation = 0
         transitions = self.mdp.getTransitionStatesAndProbs(state, action)
         # p transitions[0]
         for transition in transitions:
             reward = self.mdp.getReward(state, action, transition[0])
             itValue = self.getValue(transition[0])
-            sumation["this"] += transition[1]*(reward + self.discount*itValue)
-        return sumation["this"]
+            sumation += transition[1]*(reward + self.discount*itValue)
+        #print action
+        #print sumation
+        return sumation
         util.raiseNotDefined()
 
     def computeActionFromValues(self, state):
@@ -90,7 +109,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         for action in actions:
             calcActions[action] = self.getQValue(state, action)
             #p calcActions[action]
-        return calcActions.argMax
+        return calcActions.argMax()
         util.raiseNotDefined()
 
     def getPolicy(self, state):
