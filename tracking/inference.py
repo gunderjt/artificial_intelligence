@@ -521,7 +521,7 @@ class JointParticleFilter:
         
         allPossible = util.Counter() 
         belief = self.getBeliefDistribution()
-        for index, particle in enumerate(self.particles):
+        for particle in self.particles:
             weight = 1.0
             for i in range(self.numGhosts):
                 #update particle to indicate captured ghosts position (jail)
@@ -531,7 +531,7 @@ class JointParticleFilter:
                 else:
                     distance = util.manhattanDistance(particle[i], pacmanPosition)
                     weight *= emissionModels[i][distance]# * belief[particle]
-            allPossible[particle] = weight
+            allPossible[particle] += weight
         
         if allPossible.totalCount() == 0:
             self.initializeParticles()
